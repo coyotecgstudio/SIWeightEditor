@@ -21,6 +21,7 @@ import re
 import os
 import locale
 import json
+import sys
 import webbrowser
 from imp import reload
 
@@ -55,6 +56,10 @@ if MAYA_VER >= 2016:
     from . import store_skin_weight_om2 as store_skin_weight
 else:
     from . import store_skin_weight
+
+PYTHON_VER = sys.version_info.major
+if PYTHON_VER >= 3:
+    round = common.round_half_up
 
 VERSION = 'r1.4.2'
 
@@ -3911,7 +3916,7 @@ class WeightEditorWindow(qt.DockWindow):
             #桁数丸めを実行
             elif round_digit is not None:
                 pre_round_sum = round(sum(new_weight), 10)
-                round_weight = map(lambda w:round(w, round_digit), new_weight)
+                round_weight = list(map(lambda w:round(w, round_digit), new_weight))
                 after_round_sum = round(sum(round_weight), 10)
                 sub_value = pre_round_sum - after_round_sum
                 if sub_value == 0.0:
@@ -4074,7 +4079,7 @@ class WeightEditorWindow(qt.DockWindow):
                     self.weight_model.over_weight_rows.remove(row)
                 except:
                     pass
-            influence_count = all_influences_count - new_weight.count(0.0)
+            influence_count = all_influences_count - list(new_weight).count(0.0)
             self.weight_model.over_influence_limit_dict[row] = influence_count
             
         self.counter.count(string='Weight Calculation :')
